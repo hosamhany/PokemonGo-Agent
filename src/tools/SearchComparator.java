@@ -8,13 +8,13 @@ import java.util.function.ToLongFunction;
 
 import problemDataTypes.Node;
 
-public class UninformedComparator implements Comparator<Node>{
+public class SearchComparator implements Comparator<Node>{
 
 	@Override
 	public int compare(Node o1, Node o2) {
-		Integer o1PathCost = new Integer(o1.getPathCost());
-		Integer o2PathCost = new Integer(o2.getPathCost());
-		return o1PathCost.compareTo(o2PathCost);
+		Integer o1Fn = new Integer(o1.getFn());
+		Integer o2Fn = new Integer(o2.getFn());
+		return o1Fn.compareTo(o2Fn);
 	}
 
 	@Override

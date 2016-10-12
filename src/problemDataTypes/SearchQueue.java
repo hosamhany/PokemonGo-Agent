@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
-import tools.UninformedComparator;
+import tools.SearchComparator;
 
 public class SearchQueue {
 	private Collection<Node> q;
@@ -15,12 +15,17 @@ public class SearchQueue {
 	private int depth;
 	private Node initial;
 	
-	public SearchQueue(String algorithm, Node initial, int depth) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public SearchQueue(String algorithm, Node initial, int depth) throws NoSuchMethodException, 
+	SecurityException, IllegalAccessException, IllegalArgumentException, 
+	InvocationTargetException {
 		this(algorithm, initial);
 		this.depth = depth;
 	}
-	public SearchQueue(String algorithm, Node initial) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public SearchQueue(String algorithm, Node initial) throws NoSuchMethodException, 
+	SecurityException, IllegalAccessException, IllegalArgumentException, 
+	InvocationTargetException {
 		this.algorithm = algorithm;
+		this.initial = initial;
 		
 		switch(this.algorithm) {
 		case "DepthLimited":
@@ -34,24 +39,13 @@ public class SearchQueue {
 		case "UniformCost":
 		case "APlus":
 		case "Greedy":
-			this.initPriorityQueue();
+			this.q = new PriorityQueue<Node>(new SearchComparator());
 			break;
 		default:
 			throw new UnsupportedOperationException();
 		}
 		
 		this.insert(new Node[]{initial});
-	}
-	
-	private void initPriorityQueue(){
-		switch(this.algorithm){
-		case "UniformCost":
-			this.q = new PriorityQueue<Node>(new UninformedComparator());
-			break;
-		case "APlus":
-		case "Greedy":
-			// TODO initialize Priority Queue with heuristics
-		}
 	}
 
 	public void insert(Node[] nodes) throws NoSuchMethodException, 
