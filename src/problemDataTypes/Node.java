@@ -3,7 +3,7 @@ package problemDataTypes;
 import abstractDataTypes.Operator;
 import abstractDataTypes.State;
 
-public class Node {
+public class Node{
 	private int depth;
 	private int pathCost;
 	private Operator operator;
@@ -49,4 +49,12 @@ public class Node {
 	public void setState(State state) {
 		this.state = state;
 	}
+	
+//
+//	@Override
+//	public int compareTo(Object o) {
+//		Integer thisPathCost = new Integer(this.pathCost);
+//		Integer otherPathCost = new Integer(((Node) o).pathCost);
+//		return thisPathCost.compareTo(otherPathCost);
+//	}
 }
