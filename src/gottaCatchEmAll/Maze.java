@@ -1,5 +1,11 @@
 package gottaCatchEmAll;
 
+/*Class Description: 
+ * - This class generates the maze and outputs the state size of the generated maze.
+ * - TODO: startingCell(), finishingCell(), isValidCell(cell)
+ * 
+ */
+
 public class Maze {
 	private int rows;
 	private int columns;
