@@ -128,5 +128,9 @@ public class SearchQueue {
 	private Node removeGreedy(){
 		return this.removeUniformCost();
 	}
+	
+	public boolean isEmpty() {
+		return this.q.isEmpty();
+	}
 
 }

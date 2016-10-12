@@ -11,10 +11,13 @@ public class Node{
 	private State state;
 	private int fn;
 	
+	public Node(State state){
+		this.state = state;
+	}
 	
 	public Node(Node parent, State state, Operator operator, int pathCost, int fn) {
+		this(state);
 		this.parent = parent;
-		this.state = state;
 		this.operator =  operator;
 		this.pathCost = pathCost;
 		this.fn = fn;
