@@ -3,12 +3,28 @@ package problemDataTypes;
 import abstractDataTypes.Operator;
 import abstractDataTypes.State;
 
-public class Node {
+public class Node{
 	private int depth;
 	private int pathCost;
 	private Operator operator;
-	private Node Parent;
+	private Node parent;
 	private State state;
+	private int fn;
+	
+	public Node(State state){
+		this.state = state;
+	}
+	
+	public Node(Node parent, State state, Operator operator, int pathCost, int fn) {
+		this(state);
+		this.parent = parent;
+		this.operator =  operator;
+		this.pathCost = pathCost;
+		this.fn = fn;
+	}
+	public Node(Node parent, State state, Operator operator, int pathCost) {
+		this(parent, state, operator, pathCost, pathCost);
+	}
 
 	public int getDepth() {
 		return depth;
@@ -35,11 +51,11 @@ public class Node {
 	}
 
 	public Node getParent() {
-		return Parent;
+		return this.parent;
 	}
 
 	public void setParent(Node parent) {
-		Parent = parent;
+		this.parent = parent;
 	}
 
 	public State getState() {
@@ -49,4 +65,20 @@ public class Node {
 	public void setState(State state) {
 		this.state = state;
 	}
+	
+	public int getFn() {
+		return fn;
+	}
+	public void setFn(int fn) {
+		this.fn = fn;
+	}
+	
+	
+//
+//	@Override
+//	public int compareTo(Object o) {
+//		Integer thisPathCost = new Integer(this.pathCost);
+//		Integer otherPathCost = new Integer(((Node) o).pathCost);
+//		return thisPathCost.compareTo(otherPathCost);
+//	}
 }
