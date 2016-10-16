@@ -10,7 +10,6 @@ public class Node{
 	private Node parent;
 	private State state;
 	private int fn;
-	
 	public Node(State state){
 		this.state = state;
 	}

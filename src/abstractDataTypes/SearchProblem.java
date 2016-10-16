@@ -4,7 +4,7 @@ import problemDataTypes.Node;
 
 public abstract class SearchProblem {
 	private State initialState;
-	private Operator[] operators;
+	private String[] operators;
 	
 	public State getInitialState() {
 		return initialState;
@@ -14,11 +14,11 @@ public abstract class SearchProblem {
 		this.initialState = initialState;
 	}
 	
-	public Operator[] getOperators() {
+	public String[] getOperators() {
 		return operators;
 	}
 	
-	public void setOperators(Operator[] operators) {
+	public void setOperators(String[] operators) {
 		this.operators = operators;
 	}
 	
@@ -26,5 +26,5 @@ public abstract class SearchProblem {
 	
 	public abstract Node[] expand(Node node);
 	
-	public abstract Node apply(Operator operator, Node node);
+	public abstract Node apply(String operator, Node node);
 }
