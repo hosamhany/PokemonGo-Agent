@@ -2,7 +2,7 @@ package abstractDataTypes;
 
 import problemDataTypes.Node;
 
-public abstract class State {
+public class State {
 	private int cellRow;
 	private int cellColumn;
 	private int orientation;
@@ -12,7 +12,11 @@ public abstract class State {
 	public State() {
 
 	}
-
+	public State(int row, int column) {
+		this.cellRow = row;
+		this.cellColumn = column;
+	}
+	
 	public State(int cellRow, int cellColumn, String orientation, int nOfPoke, int stepsToHatch) {
 	}
 
@@ -75,5 +79,10 @@ public abstract class State {
 
 	public void setStepsToHatch(int stepsToHatch) {
 		this.stepsToHatch = stepsToHatch;
+	}
+	
+	public void setCell(State other) {
+		this.setCellRow(other.getCellRow());
+		this.setCellColumn(other.getCellColumn());
 	}
 }

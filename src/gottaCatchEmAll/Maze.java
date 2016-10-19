@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Stack;
 
 /*Class Description: 
@@ -205,10 +206,32 @@ public class Maze {
 //		}
 	}
 	
+	public boolean isValidMove(int orgX, int orgY, int newX, int newY) {
+		if (!inBounds(newX, newY)) {
+			return false;
+		}
+		int oldCell = orgX * rows + orgY;
+		int newCell = newX * rows + newY;
+		return (!walls.contains(new Pair(Math.min(oldCell, newCell), Math.max(oldCell, newCell))));
+	}
+	public boolean hasPokemon(int row, int column) {
+		// TODO: check if cell has pokemon
+		return true;
+	}
+	
 	public static void main(String[] args) {
 		Maze maze = new Maze(7, 7);
 		maze.initMaze();
 		maze.printMaze();
 		//maze.printWalls();
+		Scanner sc = new Scanner(System.in);
+		while (true) {
+			int a, b, c, d;
+			a = sc.nextInt();
+			b = sc.nextInt();
+			c = sc.nextInt();
+			d = sc.nextInt();
+			System.out.println(maze.isValidMove(a, b, c, d));
+		}
 	}
 }

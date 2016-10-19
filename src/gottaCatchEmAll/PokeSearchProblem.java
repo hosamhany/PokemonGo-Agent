@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 import problemDataTypes.Node;
 import problemDataTypes.SearchQueue;
-import abstractDataTypes.Operator;
 import abstractDataTypes.SearchProblem;
+import abstractDataTypes.State;
 
 public class PokeSearchProblem extends SearchProblem {
 	private Maze maze;
@@ -47,6 +47,7 @@ public class PokeSearchProblem extends SearchProblem {
 
 	public int calculateHeuristic(Node node) {
 		// TODO calculate heuristic
+		node.setFn(node.getPathCost());
 		return node.getFn();
 	}
 
@@ -69,48 +70,79 @@ public class PokeSearchProblem extends SearchProblem {
 	@Override
 	public Node apply(String operator, Node node) {
 		// TODO Auto-generated method stub
-		node.setDepth(node.getDepth() + 1);
-		node.setPathCost(node.getPathCost() + 1);
+		Node newNode = new Node();
+		newNode.setDepth(node.getDepth() + 1);
+		newNode.setPathCost(node.getPathCost() + 1);
+		newNode.setState(new State(node.getState().getCellRow(), node.getState().getCellColumn()));
 		switch (operator) {
 		case "F":
 			switch (node.getState().getOrientation()) {
 			// TODO: maze.inBounds need to check whether there is a wall or not.
 			case 0:
-				if (maze.inBounds(node.getState().getCellRow() - 1)) {
-					node.getState().setCellRow(node.getState().getCellRow() - 1);
+				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
+						node.getState().getCellRow() - 1, node.getState().getCellColumn())) {
+					newNode.getState().setCellRow(node.getState().getCellRow() - 1);
 				} else {
 					return null;
 				}
+				break;
 			case 1:
-				if (maze.inBounds(node.getState().getCellColumn() + 1)) {
-					node.getState().setCellColumn(node.getState().getCellColumn() + 1);
+				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
+						node.getState().getCellRow(), node.getState().getCellColumn() + 1)) {
+					newNode.getState().setCellColumn(node.getState().getCellColumn() + 1);
 				} else {
 					return null;
 				}
+				break;
 			case 2:
-				if (maze.inBounds(node.getState().getCellRow() + 1)) {
-					node.getState().setCellRow(node.getState().getCellRow() + 1);
+				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
+						node.getState().getCellRow() + 1, node.getState().getCellColumn())) {
+					newNode.getState().setCellRow(node.getState().getCellRow() + 1);
 				} else {
 					return null;
 				}
+				newNode.getState().setStepsToHatch(node.getState().getStepsToHatch() - 1);
+				break;
 			case 3:
-				if (maze.inBounds(node.getState().getCellColumn() - 1)) {
-					node.getState().setCellColumn(node.getState().getCellColumn() - 1);
+				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
+						node.getState().getCellRow() + 1, node.getState().getCellColumn() - 1)) {
+					newNode.getState().setCellColumn(node.getState().getCellColumn() - 1);
 				} else {
 					return null;
 				}
+				break;
 			default:
 				return null;
 			}
+			newNode.getState().setStepsToHatch(node.getState().getStepsToHatch() - 1);
+			if(maze.hasPokemon(newNode.getState().getCellRow(), newNode.getState().getCellColumn())) {
+				newNode.getState().setnOfPoke(node.getState().getnOfPoke()-1);
+			}
 
 		case "R":
-			node.getState().setOrientation(node.getState().getOrientation() + 1);
-			node.setParent(node);
+			newNode.getState().setOrientation(node.getState().getOrientation() + 1);
+			newNode.setParent(node);
+			newNode.getState().setCell(node.getState());
+			break;
 		case "L":
-			node.getState().setOrientation(node.getState().getOrientation() - 1);
-			node.setParent(node);
+			newNode.getState().setOrientation(node.getState().getOrientation() - 1);
+			newNode.setParent(node);
+			newNode.getState().setCell(node.getState());
+			break;
 		default:
 		}
-		return node;
+
+		return newNode;
+	}
+
+	public static void main(String[] args) {
+		PokeSearchProblem problem = new PokeSearchProblem(3, 3);
+		try {
+			problem.generalSearch("DFS");
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
