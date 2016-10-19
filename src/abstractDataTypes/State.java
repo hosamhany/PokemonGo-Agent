@@ -17,9 +17,17 @@ public class State {
 		this.cellColumn = column;
 	}
 	
-	public State(int cellRow, int cellColumn, String orientation, int nOfPoke, int stepsToHatch) {
+	public State(int cellRow, int cellColumn, int orientation, int nOfPoke, int stepsToHatch) {
+		this(cellRow, cellColumn);
+		this.orientation = orientation;
+		this.nOfPoke = nOfPoke;
+		this.stepsToHatch = stepsToHatch;
 	}
-
+	public void setLocation(int x, int y)
+	{
+		this.cellRow = x;
+		this.cellColumn = y;
+	}
 	public int getCellRow() {
 		return cellRow;
 	}
@@ -84,5 +92,13 @@ public class State {
 	public void setCell(State other) {
 		this.setCellRow(other.getCellRow());
 		this.setCellColumn(other.getCellColumn());
+	}
+	@Override
+	public String toString() {
+		String s = "("+this.cellRow+","+this.cellColumn+")\n"+
+					"Orientation: "+this.orientation+"\n"+
+					"Pokemons left: "+this.nOfPoke+"\n"+
+					"Steps to hatch: "+this.stepsToHatch+"\n";
+		return s;
 	}
 }

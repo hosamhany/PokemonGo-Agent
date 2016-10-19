@@ -40,7 +40,31 @@ public class Maze {
 	boolean[] vis;
 	int[] dx = { 0, 1, 0, -1};
 	int[] dy = {1, 0, -1, 0};
-	int[] trans; 
+	int[] trans;
+	
+	HashSet<Integer> pokemonPos;
+	int initialCell, goalCell;
+	
+	public void generateInitCells(){
+		int pokemon_count = Math.min(rows,  columns);
+		pokemonPos = new HashSet<Integer>();
+		ArrayList<Integer> arr = new ArrayList<Integer>();
+		for(int i = 0; i < rows * columns; i++){
+			arr.add(i);
+		}
+		Collections.shuffle(arr);
+		for(int i = 0; i < pokemon_count; i++) {
+			pokemonPos.add(arr.get(i));
+		}
+		initialCell = arr.get(pokemon_count);
+		goalCell = arr.get(pokemon_count + 1);
+	}
+	
+	public int getNumberOfPokes() {
+		return pokemonPos.size();
+	}
+	
+	
 
 
 	public Maze(int rows, int columns) {
@@ -65,6 +89,8 @@ public class Maze {
 				}
 			}
 		}
+		initMaze();
+		generateInitCells();
 	}
 
 	public void initMaze() {
@@ -178,6 +204,7 @@ public class Maze {
 			}
 			System.out.println();
 		}
+		System.out.println("goal cell (" + goalCell/rows + ", " + goalCell%rows + ")");
 //		for (int i = 0; i < rows; i++) {
 //			System.out.print("|");
 //			for(int j = 0; j < columns; j++) {
@@ -206,6 +233,8 @@ public class Maze {
 //		}
 	}
 	
+	
+	
 	public boolean isValidMove(int orgX, int orgY, int newX, int newY) {
 		if (!inBounds(newX, newY)) {
 			return false;
@@ -214,14 +243,24 @@ public class Maze {
 		int newCell = newX * rows + newY;
 		return (!walls.contains(new Pair(Math.min(oldCell, newCell), Math.max(oldCell, newCell))));
 	}
-	public boolean hasPokemon(int row, int column) {
-		// TODO: check if cell has pokemon
-		return true;
+	public boolean hasPokemon(int x, int y) {
+		if (pokemonPos.contains(x * rows + y)) {
+			pokemonPos.remove(x * rows + y);
+			return true;
+		}
+		return false;
+	}
+	
+	public int getInitialCell() {
+		return initialCell;
+	}
+	public boolean isGoalCell(int x, int y) {
+		return (goalCell == (x * rows + y));
 	}
 	
 	public static void main(String[] args) {
 		Maze maze = new Maze(7, 7);
-		maze.initMaze();
+		//maze.initMaze();
 		maze.printMaze();
 		//maze.printWalls();
 		Scanner sc = new Scanner(System.in);

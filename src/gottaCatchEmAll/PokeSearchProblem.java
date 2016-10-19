@@ -15,6 +15,11 @@ public class PokeSearchProblem extends SearchProblem {
 
 	public PokeSearchProblem(int rows, int columns) {
 		this.maze = new Maze(rows, columns);
+		int initialCell = maze.getInitialCell();
+		int rCell = initialCell / rows;
+		int cCell = initialCell % rows;
+		this.setOperators(new String[] { "F", "R", "L" });
+		this.setInitialState(new State(rCell, cCell, 0, maze.getNumberOfPokes(), 6));
 	}
 
 	public Node generalSearch(String algorithm) throws NoSuchMethodException, SecurityException, IllegalAccessException,
@@ -30,16 +35,20 @@ public class PokeSearchProblem extends SearchProblem {
 		while (!this.searchQueue.isEmpty()) {
 			Node currNode = this.searchQueue.removeFront();
 			if (isGoal(currNode)) {
+				System.out.println("Gaol reached!");
 				return currNode;
 			}
-			Node[] neighbors = expand(currNode);
+			System.out.println(currNode.getDepth());
+			System.out.println(currNode.toString());
+			System.out.println("_____________");
+			ArrayList<Node> neighbors = expand(currNode);
 			calculateHeuristic(neighbors);
 			this.searchQueue.insert(neighbors);
 		}
 		return null;
 	}
 
-	public void calculateHeuristic(Node[] nodes) {
+	public void calculateHeuristic(ArrayList<Node> nodes) {
 		for (Node node : nodes) {
 			node.setFn(calculateHeuristic(node));
 		}
@@ -52,28 +61,33 @@ public class PokeSearchProblem extends SearchProblem {
 	}
 
 	public boolean isGoal(Node node) {
-		// TODO goal test
-		return false;
+		State s = node.getState();
+		int row = s.getCellRow();
+		int column = s.getCellColumn();
+
+		return (maze.isGoalCell(row, column) && (s.getnOfPoke() == 0) && (s.getStepsToHatch() == 0));
 	}
 
 	@Override
-	public Node[] expand(Node node) {
+	public ArrayList<Node> expand(Node node) {
 		ArrayList<Node> neighbors = new ArrayList<Node>();
 		for (String operator : this.getOperators()) {
 			Node next = apply(operator, node);
 			if (next != null)
 				neighbors.add(next);
 		}
-		return (Node[]) neighbors.toArray();
+		return neighbors;
 	}
 
 	@Override
 	public Node apply(String operator, Node node) {
 		// TODO Auto-generated method stub
 		Node newNode = new Node();
+		newNode.setOperator(operator);
 		newNode.setDepth(node.getDepth() + 1);
 		newNode.setPathCost(node.getPathCost() + 1);
 		newNode.setState(new State(node.getState().getCellRow(), node.getState().getCellColumn()));
+		State state = newNode.getState();
 		switch (operator) {
 		case "F":
 			switch (node.getState().getOrientation()) {
@@ -81,64 +95,64 @@ public class PokeSearchProblem extends SearchProblem {
 			case 0:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
 						node.getState().getCellRow() - 1, node.getState().getCellColumn())) {
-					newNode.getState().setCellRow(node.getState().getCellRow() - 1);
-				} else {
-					return null;
+					state.setLocation(node.getState().getCellRow() - 1, node.getState().getCellColumn());
+					// state.setStepsToHatch(node.getState().getStepsToHatch() -
+					// 1);
 				}
 				break;
 			case 1:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
 						node.getState().getCellRow(), node.getState().getCellColumn() + 1)) {
-					newNode.getState().setCellColumn(node.getState().getCellColumn() + 1);
-				} else {
-					return null;
+					state.setLocation(node.getState().getCellRow(), node.getState().getCellColumn() + 1);
+					// state.setStepsToHatch(node.getState().getStepsToHatch() -
+					// 1);
 				}
 				break;
 			case 2:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
 						node.getState().getCellRow() + 1, node.getState().getCellColumn())) {
-					newNode.getState().setCellRow(node.getState().getCellRow() + 1);
-				} else {
-					return null;
+					state.setLocation(node.getState().getCellRow() + 1, node.getState().getCellColumn());
+					// state.setStepsToHatch(node.getState().getStepsToHatch() -
+					// 1);
 				}
-				newNode.getState().setStepsToHatch(node.getState().getStepsToHatch() - 1);
 				break;
 			case 3:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
 						node.getState().getCellRow() + 1, node.getState().getCellColumn() - 1)) {
-					newNode.getState().setCellColumn(node.getState().getCellColumn() - 1);
-				} else {
-					return null;
+					state.setLocation(node.getState().getCellRow(), node.getState().getCellColumn() - 1);
+					// state.setStepsToHatch(node.getState().getStepsToHatch() -
+					// 1);
 				}
 				break;
 			default:
-				return null;
+
 			}
-			newNode.getState().setStepsToHatch(node.getState().getStepsToHatch() - 1);
-			if(maze.hasPokemon(newNode.getState().getCellRow(), newNode.getState().getCellColumn())) {
-				newNode.getState().setnOfPoke(node.getState().getnOfPoke()-1);
+			if (node.getState().getStepsToHatch() > 0)
+				state.setStepsToHatch(node.getState().getStepsToHatch() - 1);
+			if (maze.hasPokemon(newNode.getState().getCellRow(), newNode.getState().getCellColumn())) {
+				state.setnOfPoke(node.getState().getnOfPoke() - 1);
 			}
+			break;
 
 		case "R":
-			newNode.getState().setOrientation(node.getState().getOrientation() + 1);
-			newNode.setParent(node);
-			newNode.getState().setCell(node.getState());
+			state.setOrientation(node.getState().getOrientation() + 1);
+			state.setCell(node.getState());
 			break;
 		case "L":
-			newNode.getState().setOrientation(node.getState().getOrientation() - 1);
-			newNode.setParent(node);
-			newNode.getState().setCell(node.getState());
+			state.setOrientation(node.getState().getOrientation() - 1);
+			state.setCell(node.getState());
 			break;
 		default:
 		}
-
+		newNode.setState(state);
+		newNode.setParent(node);
 		return newNode;
 	}
 
 	public static void main(String[] args) {
 		PokeSearchProblem problem = new PokeSearchProblem(3, 3);
 		try {
-			problem.generalSearch("DFS");
+			problem.generalSearch("BFS");
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			// TODO Auto-generated catch block

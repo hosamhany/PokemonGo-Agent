@@ -2,6 +2,7 @@ package problemDataTypes;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -44,47 +45,48 @@ public class SearchQueue {
 		default:
 			throw new UnsupportedOperationException();
 		}
-		
-		this.insert(new Node[]{initial});
+		ArrayList<Node> firstNode = new ArrayList<Node>();
+		firstNode.add(initial);
+		this.insert(firstNode);
 	}
 
-	public void insert(Node[] nodes) throws NoSuchMethodException, 
+	public void insert(ArrayList<Node> nodes) throws NoSuchMethodException, 
 	SecurityException, IllegalAccessException, IllegalArgumentException, 
 	InvocationTargetException{
-		Method insertMethod = this.getClass().getMethod("insert"+algorithm, nodes.getClass());
+		Method insertMethod = this.getClass().getDeclaredMethod("insert"+algorithm, nodes.getClass());
 		insertMethod.invoke(this, nodes);
 	}
 	
-	private void insertDFS(Node[] nodes) {
+	private void insertDFS(ArrayList<Node> nodes) {
 		for(Node node: nodes) {
-			this.insertDFS(node);
+			((Stack<Node>) this.q).push(node);
 		}
 	}
-	private void insertDFS(Node node) {
-		((Stack<Node>) this.q).push(node);
-	}
+
 	
 	@SuppressWarnings("unused")
-	private void insertBFS(Node[] nodes) {
+	private void insertBFS(ArrayList<Node> nodes) {
 		for(Node node: nodes) {
 			((LinkedList<Node>)this.q).add(node);		
 		}
 	}
 	
-	private void insertDepthLimited(Node[] nodes) {
-		if(nodes[0].getDepth() <= depth) {
+	private void insertDepthLimited(ArrayList<Node> nodes) {
+		if(nodes.get(0).getDepth() <= depth) {
 			insertDFS(nodes);
 		}
 	}
 	
 	@SuppressWarnings("unused")
-	private void insertIterativeDeepening(Node[] nodes) throws NoSuchMethodException, 
+	private void insertIterativeDeepening(ArrayList<Node> nodes) throws NoSuchMethodException, 
 	SecurityException, IllegalAccessException, IllegalArgumentException, 
 	InvocationTargetException {
 		insertDepthLimited(nodes);
 		if(this.q.isEmpty()) {
 			this.depth++;
-			this.insert(new Node[]{initial});
+			ArrayList<Node> again = new ArrayList<Node>();
+			again.add(initial);
+			this.insert(again);
 		}
 	}
 	
@@ -92,7 +94,7 @@ public class SearchQueue {
 	public Node removeFront() throws IllegalAccessException, 
 	IllegalArgumentException, InvocationTargetException, NoSuchMethodException, 
 	SecurityException{
-		Method method = this.getClass().getMethod("remove"+this.algorithm);
+		Method method = this.getClass().getDeclaredMethod("remove"+this.algorithm);
 		return (Node) method.invoke(this);
 	}
 	

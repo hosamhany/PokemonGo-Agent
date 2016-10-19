@@ -1,5 +1,7 @@
 package abstractDataTypes;
 
+import java.util.ArrayList;
+
 import problemDataTypes.Node;
 
 public abstract class SearchProblem {
@@ -24,7 +26,7 @@ public abstract class SearchProblem {
 	
 	public abstract boolean isGoal(Node node);
 	
-	public abstract Node[] expand(Node node);
+	public abstract ArrayList<Node> expand(Node node);
 	
 	public abstract Node apply(String operator, Node node);
 }
