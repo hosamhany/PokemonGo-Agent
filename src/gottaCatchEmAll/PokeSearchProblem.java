@@ -2,6 +2,7 @@ package gottaCatchEmAll;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import problemDataTypes.Node;
@@ -12,6 +13,8 @@ import abstractDataTypes.State;
 public class PokeSearchProblem extends SearchProblem {
 	private Maze maze;
 	private SearchQueue searchQueue;
+	private String algorithm;
+	private int heuristic;
 
 	public PokeSearchProblem(int rows, int columns) {
 		this.maze = new Maze(rows, columns);
@@ -19,28 +22,38 @@ public class PokeSearchProblem extends SearchProblem {
 		int rCell = initialCell / rows;
 		int cCell = initialCell % rows;
 		this.setOperators(new String[] { "F", "R", "L" });
-		this.setInitialState(new State(rCell, cCell, 0, maze.getNumberOfPokes(), 6));
+		int orien = (int) Math.floor(Math.random()*4);
+		int steps = Math.min(maze.getRows(), maze.getColumns());
+		this.setInitialState(new State(rCell, cCell, orien, steps, this.maze.getPokemonPos()));
 	}
 
 	public Node generalSearch(String algorithm) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
+		this.algorithm = algorithm;
 		int limit = 0;
+		Scanner scanner = new Scanner(System.in);
 		if (algorithm.equals("DepthLimited")) {
-			Scanner scanner = new Scanner(System.in);
+			System.out.println("Number of levels: ");
 			limit = scanner.nextInt();
+		}
+		if(algorithm.equals("APlus") || algorithm.equals("Greedy")) {
+			System.out.println("Which heuristic? (0, 1, 2) ");
+			heuristic = scanner.nextInt();
 		}
 		Node initialNode = new Node(this.getInitialState());
 		calculateHeuristic(initialNode);
 		this.searchQueue = new SearchQueue(algorithm, initialNode, limit);
 		while (!this.searchQueue.isEmpty()) {
 			Node currNode = this.searchQueue.removeFront();
+//			if(currNode.toString().length() > 0) {
+//				System.out.println(currNode);
+//			}
 			if (isGoal(currNode)) {
 				System.out.println("Gaol reached!");
+				maze.printMaze();
 				return currNode;
 			}
-			System.out.println(currNode.getDepth());
-			System.out.println(currNode.toString());
-			System.out.println("_____________");
+
 			ArrayList<Node> neighbors = expand(currNode);
 			calculateHeuristic(neighbors);
 			this.searchQueue.insert(neighbors);
@@ -56,10 +69,40 @@ public class PokeSearchProblem extends SearchProblem {
 
 	public int calculateHeuristic(Node node) {
 		// TODO calculate heuristic
-		node.setFn(node.getPathCost());
+		if(this.algorithm.equals("UniformCost")) {
+			node.setFn(node.getPathCost());
+		}
+		if(this.algorithm.equals("APlus") || this.algorithm.equals("Greedy")) {
+			switch (this.heuristic) {
+			case 0:
+				heuristicOne(node);
+				break;
+			case 1:
+				heuristicTwo(node);
+				break;
+			case 2:
+				heuristicThree(node);
+				break;
+			}
+		}
+		if(this.algorithm.equals("APlus")) {
+			node.setFn(node.getFn()+node.getPathCost());
+		}
 		return node.getFn();
 	}
-
+	public void heuristicOne(Node node) {
+		int xDiff = Math.abs(node.getState().getCellRow() - maze.getGoalCell()/maze.getRows());
+		int yDiff = Math.abs(node.getState().getCellColumn() - maze.getGoalCell() % maze.getRows());
+		node.setFn(xDiff + yDiff);
+	}
+	public void heuristicTwo(Node node) {
+		heuristicOne(node);
+		node.setFn(Math.max(node.getFn(), node.getState().getStepsToHatch()));
+	}	
+	public void heuristicThree(Node node) {
+		
+	}
+	
 	public boolean isGoal(Node node) {
 		State s = node.getState();
 		int row = s.getCellRow();
@@ -86,8 +129,12 @@ public class PokeSearchProblem extends SearchProblem {
 		newNode.setOperator(operator);
 		newNode.setDepth(node.getDepth() + 1);
 		newNode.setPathCost(node.getPathCost() + 1);
-		newNode.setState(new State(node.getState().getCellRow(), node.getState().getCellColumn()));
-		State state = newNode.getState();
+		// newNode.setState(new State(node.getState().getCellRow(), node.getState().getCellColumn()));
+		State state = new State(node.getState().getCellRow(), node.getState().getCellColumn());
+		HashSet<Integer> pokePos = (HashSet<Integer>)node.getState().getPokemonPos().clone();
+		state.setPokemonPos(pokePos);
+		newNode.setState(state);
+		state.setStepsToHatch(node.getState().getStepsToHatch());
 		switch (operator) {
 		case "F":
 			switch (node.getState().getOrientation()) {
@@ -98,7 +145,7 @@ public class PokeSearchProblem extends SearchProblem {
 					state.setLocation(node.getState().getCellRow() - 1, node.getState().getCellColumn());
 					// state.setStepsToHatch(node.getState().getStepsToHatch() -
 					// 1);
-				}
+				} else return null;
 				break;
 			case 1:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
@@ -106,7 +153,7 @@ public class PokeSearchProblem extends SearchProblem {
 					state.setLocation(node.getState().getCellRow(), node.getState().getCellColumn() + 1);
 					// state.setStepsToHatch(node.getState().getStepsToHatch() -
 					// 1);
-				}
+				} else return null;
 				break;
 			case 2:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
@@ -114,45 +161,72 @@ public class PokeSearchProblem extends SearchProblem {
 					state.setLocation(node.getState().getCellRow() + 1, node.getState().getCellColumn());
 					// state.setStepsToHatch(node.getState().getStepsToHatch() -
 					// 1);
-				}
+				} else return null;
 				break;
 			case 3:
 				if (maze.isValidMove(node.getState().getCellRow(), node.getState().getCellColumn(),
-						node.getState().getCellRow() + 1, node.getState().getCellColumn() - 1)) {
+						node.getState().getCellRow(), node.getState().getCellColumn() - 1)) {
 					state.setLocation(node.getState().getCellRow(), node.getState().getCellColumn() - 1);
 					// state.setStepsToHatch(node.getState().getStepsToHatch() -
 					// 1);
-				}
+				} else return null;
 				break;
 			default:
 
 			}
-			if (node.getState().getStepsToHatch() > 0)
+			state.setOrientation(node.getState().getOrientation());
+			if (node.getState().getStepsToHatch() > 0) {
 				state.setStepsToHatch(node.getState().getStepsToHatch() - 1);
-			if (maze.hasPokemon(newNode.getState().getCellRow(), newNode.getState().getCellColumn())) {
-				state.setnOfPoke(node.getState().getnOfPoke() - 1);
 			}
+//			if (maze.hasPokemon(newNode.getState().getCellRow(), newNode.getState().getCellColumn())) {
+//				state.setnOfPoke(node.getState().getnOfPoke() - 1);
+//			} else {
+//				state.setnOfPoke(node.getState().getnOfPoke());
+//			}
+			this.hasPokemon(state);
 			break;
 
 		case "R":
 			state.setOrientation(node.getState().getOrientation() + 1);
 			state.setCell(node.getState());
+//			state.setStepsToHatch(node.getState().getStepsToHatch());
 			break;
 		case "L":
 			state.setOrientation(node.getState().getOrientation() - 1);
 			state.setCell(node.getState());
+//			state.setStepsToHatch(node.getState().getStepsToHatch());
 			break;
 		default:
 		}
-		newNode.setState(state);
+//		newNode.setState(state);
 		newNode.setParent(node);
 		return newNode;
+	}
+	public boolean hasPokemon(State s) {
+		int x = s.getCellRow();
+		int y = s.getCellColumn();
+		if (s.getPokemonPos().contains(x * maze.getRows() + y)) {
+			s.removePokemon(x * maze.getRows() + y);
+			return true;
+		}
+		return false;
 	}
 
 	public static void main(String[] args) {
 		PokeSearchProblem problem = new PokeSearchProblem(3, 3);
+		problem.maze.printMaze();
 		try {
-			problem.generalSearch("BFS");
+			System.out.println((problem.getInitialState().toString()));
+			Node sol = problem.generalSearch("APlus");
+			if(sol == null) {
+				System.out.println("No solution found");
+			}
+			System.out.println("-----------");
+			while (sol != null) {
+				System.out.println(sol.toString());
+				sol = sol.getParent();
+			}
+			System.out.println("-----------");
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			// TODO Auto-generated catch block

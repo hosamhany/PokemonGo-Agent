@@ -8,6 +8,9 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
+import com.sun.org.apache.xpath.internal.axes.ReverseAxesWalker;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
+
 import tools.SearchComparator;
 
 public class SearchQueue {
@@ -58,7 +61,9 @@ public class SearchQueue {
 	}
 	
 	private void insertDFS(ArrayList<Node> nodes) {
-		for(Node node: nodes) {
+		
+		for(int i = nodes.size()-1; i >= 0; i--) {
+			Node node = nodes.get(i);
 			((Stack<Node>) this.q).push(node);
 		}
 	}
@@ -75,8 +80,18 @@ public class SearchQueue {
 		if(nodes.get(0).getDepth() <= depth) {
 			insertDFS(nodes);
 		}
+	}	
+	private void insertUniformCost(ArrayList<Node> nodes) {	
+		for(Node node: nodes) {
+			((PriorityQueue<Node>)this.q).add(node);
+		}
 	}
-	
+	private void insertAPlus(ArrayList<Node> nodes) {
+		insertUniformCost(nodes);
+	}
+	private void insertGreedy(ArrayList<Node> nodes) {
+		insertUniformCost(nodes);
+	}
 	@SuppressWarnings("unused")
 	private void insertIterativeDeepening(ArrayList<Node> nodes) throws NoSuchMethodException, 
 	SecurityException, IllegalAccessException, IllegalArgumentException, 
@@ -133,6 +148,9 @@ public class SearchQueue {
 	
 	public boolean isEmpty() {
 		return this.q.isEmpty();
+	}
+	public String getAlgorithm() {
+		return algorithm;
 	}
 
 }

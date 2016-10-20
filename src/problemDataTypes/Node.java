@@ -23,6 +23,7 @@ public class Node {
 		this.parent = parent;
 		this.operator = operator;
 		this.pathCost = pathCost;
+		this.depth = 0;
 		this.fn = fn;
 	}
 
@@ -79,10 +80,13 @@ public class Node {
 	}
 
 	public String toString() {
-		String s = "State: " + this.state + "\n" + "Depth: " + this.depth + "\n" + "Path Cost: " + this.pathCost + "\n"
-				+ "Operator: " + this.operator;
+		String s = "";
+		s = "State: " + this.state + "Depth: " + this.depth + "\n" + "Path Cost: " + this.pathCost + "\n"
+				+ "Operator: " + this.operator+"\n";
 		return s;
 	}
+	
+
 
 	//
 	// @Override

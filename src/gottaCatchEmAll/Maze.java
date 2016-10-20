@@ -43,6 +43,7 @@ public class Maze {
 	int[] trans;
 	
 	HashSet<Integer> pokemonPos;
+	HashSet<Integer> pokePosCopies;
 	int initialCell, goalCell;
 	
 	public void generateInitCells(){
@@ -56,6 +57,7 @@ public class Maze {
 		for(int i = 0; i < pokemon_count; i++) {
 			pokemonPos.add(arr.get(i));
 		}
+		pokePosCopies = (HashSet<Integer>)pokemonPos.clone();
 		initialCell = arr.get(pokemon_count);
 		goalCell = arr.get(pokemon_count + 1);
 	}
@@ -205,6 +207,12 @@ public class Maze {
 			System.out.println();
 		}
 		System.out.println("goal cell (" + goalCell/rows + ", " + goalCell%rows + ")");
+		System.out.println("Pokemon positions");
+		for(Integer i:pokePosCopies) {
+			System.out.println(i/rows + ", " + i%rows);
+		}
+		System.out.println();
+		System.out.println("Starting position: " + initialCell/rows + ", " + initialCell%rows);
 //		for (int i = 0; i < rows; i++) {
 //			System.out.print("|");
 //			for(int j = 0; j < columns; j++) {
@@ -235,6 +243,10 @@ public class Maze {
 	
 	
 	
+	public int getGoalCell() {
+		return goalCell;
+	}
+
 	public boolean isValidMove(int orgX, int orgY, int newX, int newY) {
 		if (!inBounds(newX, newY)) {
 			return false;
@@ -258,6 +270,14 @@ public class Maze {
 		return (goalCell == (x * rows + y));
 	}
 	
+	public HashSet<Integer> getPokemonPos() {
+		return pokemonPos;
+	}
+
+	public void setPokemonPos(HashSet<Integer> pokemonPos) {
+		this.pokemonPos = pokemonPos;
+	}
+
 	public static void main(String[] args) {
 		Maze maze = new Maze(7, 7);
 		//maze.initMaze();

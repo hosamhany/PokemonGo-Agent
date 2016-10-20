@@ -1,12 +1,15 @@
 package abstractDataTypes;
 
+import java.util.HashSet;
+
 import problemDataTypes.Node;
 
 public class State {
 	private int cellRow;
 	private int cellColumn;
 	private int orientation;
-	private int nOfPoke;
+
+	private HashSet<Integer> pokemonPos;
 	private int stepsToHatch;
 
 	public State() {
@@ -16,11 +19,13 @@ public class State {
 		this.cellRow = row;
 		this.cellColumn = column;
 	}
-	
-	public State(int cellRow, int cellColumn, int orientation, int nOfPoke, int stepsToHatch) {
+	public State(int cellRow, int cellColumn, int orientation, int stepsToHatch, HashSet<Integer> pokemonPos) {
+		this(cellRow, cellColumn, orientation, stepsToHatch);
+		this.pokemonPos = (HashSet<Integer>)pokemonPos.clone();
+	}
+	public State(int cellRow, int cellColumn, int orientation, int stepsToHatch) {
 		this(cellRow, cellColumn);
 		this.orientation = orientation;
-		this.nOfPoke = nOfPoke;
 		this.stepsToHatch = stepsToHatch;
 	}
 	public void setLocation(int x, int y)
@@ -60,25 +65,22 @@ public class State {
 	// }
 
 	public void setOrientation(int orientation) {
-		if ((orientation > 0) && (orientation < 3)) {
-			this.orientation = orientation;
-		} else {
-			if (orientation > 3) {
-				this.orientation = 0;
-			}
-			if (orientation < 0) {
-				this.orientation = 3;
-			}
-		}
+//		if ((orientation > 0) && (orientation < 3)) {
+//			this.orientation = orientation;
+//		} else {
+//			if (orientation > 3) {
+//				this.orientation = 0;
+//			}
+//			if (orientation < 0) {
+//				this.orientation = 3;
+//			}
+//		}
+		this.orientation = (orientation + 4) % 4;
 
 	}
 
 	public int getnOfPoke() {
-		return nOfPoke;
-	}
-
-	public void setnOfPoke(int nOfPoke) {
-		this.nOfPoke = nOfPoke;
+		return pokemonPos.size();
 	}
 
 	public int getStepsToHatch() {
@@ -97,8 +99,19 @@ public class State {
 	public String toString() {
 		String s = "("+this.cellRow+","+this.cellColumn+")\n"+
 					"Orientation: "+this.orientation+"\n"+
-					"Pokemons left: "+this.nOfPoke+"\n"+
+					"Pokemons left: "+this.getnOfPoke()+"\n"+
 					"Steps to hatch: "+this.stepsToHatch+"\n";
 		return s;
 	}
+	public HashSet<Integer> getPokemonPos() {
+		return pokemonPos;
+	}
+	public void setPokemonPos(HashSet<Integer> pokemonPos) {
+		this.pokemonPos = pokemonPos;
+	}
+	
+	public void removePokemon(int cell) {
+		this.pokemonPos.remove(cell);
+	}
+
 }
