@@ -8,7 +8,6 @@ public class State {
 	private int cellRow;
 	private int cellColumn;
 	private int orientation;
-
 	private HashSet<Integer> pokemonPos;
 	private int stepsToHatch;
 

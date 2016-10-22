@@ -15,6 +15,7 @@ public class PokeSearchProblem extends SearchProblem {
 	private SearchQueue searchQueue;
 	private String algorithm;
 	private int heuristic;
+	public static int nodes_expanded;
 
 	public PokeSearchProblem(int rows, int columns) {
 		this.maze = new Maze(rows, columns);
@@ -26,9 +27,21 @@ public class PokeSearchProblem extends SearchProblem {
 		int steps = Math.min(maze.getRows(), maze.getColumns());
 		this.setInitialState(new State(rCell, cCell, orien, steps, this.maze.getPokemonPos()));
 	}
+	
+	public PokeSearchProblem(Maze maze) {
+		this.maze = maze;
+		int initialCell = maze.getInitialCell();
+		int rCell = initialCell / maze.getRows();
+		int cCell = initialCell % maze.getRows();
+		this.setOperators(new String[] { "F", "R", "L" });
+		int orien = (int) Math.floor(Math.random()*4);
+		int steps = Math.min(maze.getRows(), maze.getColumns());
+		this.setInitialState(new State(rCell, cCell, orien, steps, this.maze.getPokemonPos()));
+	}
 
 	public Node generalSearch(String algorithm) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException {
+		nodes_expanded = 0;
 		this.algorithm = algorithm;
 		int limit = 0;
 		Scanner scanner = new Scanner(System.in);
@@ -45,6 +58,7 @@ public class PokeSearchProblem extends SearchProblem {
 		this.searchQueue = new SearchQueue(algorithm, initialNode, limit);
 		while (!this.searchQueue.isEmpty()) {
 			Node currNode = this.searchQueue.removeFront();
+			nodes_expanded++;
 //			if(currNode.toString().length() > 0) {
 //				System.out.println(currNode);
 //			}
@@ -100,7 +114,38 @@ public class PokeSearchProblem extends SearchProblem {
 		node.setFn(Math.max(node.getFn(), node.getState().getStepsToHatch()));
 	}	
 	public void heuristicThree(Node node) {
+		HashSet<Integer> pokePos = node.getState().getPokemonPos();
+		int cnt = 0;
+		int orientation = node.getState().getOrientation();
+		int rows = node.getState().getCellRow();
+		int cols = node.getState().getCellColumn();
 		
+		if (orientation == 0){
+			for(Integer x : pokePos) {
+				if (x/maze.getRows() < rows) {
+					cnt++;
+				}
+			}
+		} else if (orientation == 2) {
+			for(Integer x : pokePos) {
+				if (x/maze.getRows() > rows) {
+					cnt++;
+				}
+			}
+		} else if (orientation == 1) {
+			for(Integer x : pokePos) {
+				if (x%maze.getRows() > rows) {
+					cnt++;
+				}
+			}
+		} else if (orientation == 3) {
+			for(Integer x : pokePos) {
+				if (x%maze.getRows() < rows) {
+					cnt++;
+				}
+			}
+		}
+		node.setFn(cnt);
 	}
 	
 	public boolean isGoal(Node node) {
@@ -213,20 +258,43 @@ public class PokeSearchProblem extends SearchProblem {
 	}
 
 	public static void main(String[] args) {
-		PokeSearchProblem problem = new PokeSearchProblem(3, 3);
+		PokeSearchProblem problem = new PokeSearchProblem(2, 2);
 		problem.maze.printMaze();
+		Maze general_maze = problem.maze;
 		try {
 			System.out.println((problem.getInitialState().toString()));
-			Node sol = problem.generalSearch("APlus");
-			if(sol == null) {
-				System.out.println("No solution found");
-			}
-			System.out.println("-----------");
-			while (sol != null) {
-				System.out.println(sol.toString());
-				sol = sol.getParent();
-			}
-			System.out.println("-----------");
+			Node sol = problem.generalSearch("BFS");
+			System.out.println("Number of nodes expanded with BFS: " + nodes_expanded);
+//			if(sol == null) {
+//				System.out.println("No solution found");
+//			}
+//			System.out.println("-----------");
+//			while (sol != null) {
+//				System.out.println(sol.toString());
+//				sol = sol.getParent();
+//			}
+//			System.out.println("-----------");
+			problem = new PokeSearchProblem(general_maze);
+			sol = problem.generalSearch("DepthLimited");
+			System.out.println("Number of nodes expanded with Depth limited: " + nodes_expanded);
+			problem = new PokeSearchProblem(general_maze);
+			sol = problem.generalSearch("IterativeDeepening");
+			System.out.println("Number of nodes expanded with Iterative deepening: " + nodes_expanded);
+			problem = new PokeSearchProblem(general_maze);
+			sol = problem.generalSearch("UniformCost");
+			System.out.println("Number of nodes expanded with Uniform Cost: " + nodes_expanded);
+//			problem = new PokeSearchProblem(general_maze);
+//			sol = problem.generalSearch("Greedy");
+//			System.out.println("Number of nodes expanded with Greedy: " + nodes_expanded);
+			problem = new PokeSearchProblem(general_maze);
+			sol = problem.generalSearch("APlus");
+			System.out.println("Number of nodes expanded with A star: " + nodes_expanded);
+			problem = new PokeSearchProblem(general_maze);
+			sol = problem.generalSearch("Greedy");
+			System.out.println("Number of nodes expanded with Greedy: " + nodes_expanded);
+			problem = new PokeSearchProblem(general_maze);
+			sol = problem.generalSearch("DFS");
+			System.out.println("Number of nodes expanded with DFS: " + nodes_expanded);
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			// TODO Auto-generated catch block
